@@ -1,0 +1,66 @@
+{
+  "type": "interactive_message",
+  "actions": [
+    {
+      "name": "cancel",
+      "type": "button",
+      "value": ""
+    }
+  ],
+  "callback_id": "watcher_manage",
+  "team": {
+    "id": "TD2AESU6S",
+    "domain": "crushersworkspace"
+  },
+  "channel": {
+    "id": "DD089TWN4",
+    "name": "directmessage"
+  },
+  "user": {
+    "id": "UD2AV0NLE",
+    "name": "jacobstr"
+  },
+  "action_ts": "1538295090.738182",
+  "message_ts": "1538295088.000200",
+  "attachment_id": "1",
+  "token": "8qlpKp9pFCGCdgLlM2gZBCN8",
+  "is_app_unfurl": false,
+  "original_message": {
+    "text": "",
+    "bot_id": "BD52WJ9V4",
+    "attachments": [
+      {
+        "callback_id": "watcher_manage",
+        "fallback": "Required plain-text summary of the attachment.",
+        "text": "<@UD2AV0NLE> is looking in *easy* from 10/03/18 for 1 day(s).",
+        "id": 1,
+        "color": "36a64f",
+        "actions": [
+          {
+            "id": "1",
+            "name": "cancel",
+            "text": "Remove",
+            "type": "button",
+            "value": "",
+            "style": "danger",
+            "confirm": {
+              "text": "This will cancel scraping for this reservation.",
+              "title": "Are you sure?",
+              "ok_text": "Yes",
+              "dismiss_text": "No"
+            }
+          }
+        ],
+        "mrkdwn_in": [
+          "text",
+          "pretext"
+        ]
+      }
+    ],
+    "type": "message",
+    "subtype": "bot_message",
+    "ts": "1538295088.000200"
+  },
+  "response_url": "https://hooks.slack.com/actions/TD2AESU6S/447051327415/P3Lia9m70RXQLlf0GJE0KxcY",
+  "trigger_id": "445401913089.444354912230.7446dcc7e2ce1257aba98741565f5cca"
+}
