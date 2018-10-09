@@ -159,12 +159,13 @@ def watchers_results(watcher_id):
     watcher['results'] = results
     WATCHERS.update(watcher)
 
-    if len(results) and not watcher.get('silenced') and results_changed(old_results, results):
+    has_changed = results_changed(old_results, results)
+    if len(results) and not watcher.get('silenced') and has_changed:
         slack = SlackClient(SLACK_API_KEY)
         resp = slack.api_call(
             "chat.postMessage",
             username=BOT_NAME,
-            text="Got some results!",
+            text="New campsites available!",
             channel=watcher['user_id'],
             attachments=make_results_attachments(results),
         )
@@ -364,9 +365,10 @@ def make_results_attachments(results):
         "fallback": "Campsite result.",
         "color": "#36a64f",
         "mrkdwn_in": ["text"],
-        "title": "Found a site on {} for {}.".format(
+        "title": "Found a site on {} at {} site {}.".format(
             result['date'],
-            result['campground'],
+            result['campground']['short_name'],
+            result['campsite'],
         ),
         "title_link": result['url'],
     } for result in results]
