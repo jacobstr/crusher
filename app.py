@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import json
 import os
 import random
@@ -23,6 +24,8 @@ KNOWN_CAMPGROUNDS = {
 #: The API token for the slack bot can be obtained via:
 #: https://api.slack.com/apps/AD3G033C4/oauth?
 SLACK_API_KEY = os.getenv('SLACK_API_KEY')
+#: Shared secret used to sign requests.
+SLACK_SIGNING_SECRET = os.getenv('SLACK_SIGNING_SECRET')
 #: In addition to @messaging the user that registered the watcher,
 #: the bot will also messsage this public channel.
 PUBLIC_RESULTS_CHANNEL = "campsites"
@@ -238,6 +241,14 @@ def slack_slash_commands():
     ----------------------
     Lists active watchers for all reservations.
     """
+    raw_data = flask.request.get_data()
+    if not verify_slack_request(
+        flask.request.headers['X-Slack-Signature'],
+        flask.request.headers['X-Slack-Request-Timestamp'],
+        raw_data,
+    ):
+        return flask.Response(status_code=400)
+
     text = flask.request.form['text']
     if len(text) == 0:
         return flask.jsonify({
@@ -372,3 +383,25 @@ def make_results_attachments(results):
         ),
         "title_link": result['url'],
     } for result in results]
+
+
+# Thanks Jani Karhunen: https://janikarhunen.fi/verify-slack-requests-in-aws-lambda-and-python.html
+def verify_slack_request(slack_signature=None, slack_request_timestamp=None, request_body=None):
+    ''' Form the basestring as stated in the Slack API docs. We need to make a bytestring. '''
+    basestring = "v0:{slack_request_timestamp}:{request_body}".format(
+        slack_request_timestamp=slack_request_timestamp,
+        request_body=request_body,
+    )
+
+    ''' Create a new HMAC "signature", and return the string presentation. '''
+    my_signature = 'v0=' + hmac.new(SLACK_SIGNING_SECRET, basestring, hashlib.sha256).hexdigest()
+
+    ''' Compare the the Slack provided signature to ours.
+    If they are equal, the request should be verified successfully.
+    Log the unsuccessful requests for further analysis
+    (along with another relevant info about the request). '''
+    if hmac.compare_digest(str(my_signature), str(slack_signature)):
+        return True
+    else:
+        LOGGER.warning("Verification failed. my_signature: {my_signature}")
+        return False
