@@ -265,7 +265,7 @@ def slack_slash_commands():
             })
 
         user_id = flask.request.form['user_id']
-        return add_watcher(user_id, campground, start, length)
+        return add_watcher(user_id, campground, start, int(length))
     elif command == 'list':
         return slack_list_watchers()
     elif command == 'help':
