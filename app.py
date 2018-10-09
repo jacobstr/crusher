@@ -30,7 +30,19 @@ CAMPGROUNDS = [
         "name": "LOWER_PINES",
         "id": "232450",
         "tags": ["yosemite-valley", "yosemite"],
-    }
+    },
+    {
+        "short_name": "North Pines",
+        "name": "NORTH_PINES",
+        "id": "232449",
+        "tags": ["yosemite-valley", "yosemite"],
+    },
+    {
+        "short_name": "Dry Gulch",
+        "name": "DRY_GULCH",
+        "id": "233842",
+        "tags": ["yosemite"],
+    },
 ]
 
 CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', 'http://localhost:5000/watchers/{id}/results')
