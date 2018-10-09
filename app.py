@@ -96,29 +96,46 @@ def run(watcher_id, date, length, campground):
     if resp.status_code != 200:
         return []
 
-    results = []
-    for site_id, site in resp.json()['campsites'].iteritems():
+    def _rgov_site_has_availability(site):
+        """
+        Returns True if the recreation.gov `site` payload indicates an
+        availability.
+
+        The availabilities returned assume that a proper `start_date` was
+        provided. If so, the first element of the "availabilities" array should
+        begin at the `start_date` provided above. We truncate the availabilities
+        to
+
+        A sample site payload:
+
+            {
+                "availabilities": {
+                    "2018-10-05T00:00:00Z": "Reserved",
+                    ...
+                    "2018-10-20T00:00:00Z": "reserved"
+                },
+                "campsite_id": "99",
+                "campsite_reserve_type": "Site-Specific",
+                "loop": "UPPER PINES ",
+                "quantities": null,
+                "site": "043"
+            }
+
+        """
         for avdate, status in list(site['availabilities'].iteritems())[:length]:
             if status.lower() == 'available':
-                # Note: the site payload is shaped like:
-                # {
-                #     "availabilities": {
-                #         "2018-10-05T00:00:00Z": "Reserved",
-                #         ...
-                #         "2018-10-20T00:00:00Z": "reserved"
-                #     },
-                #     "campsite_id": "99",
-                #     "campsite_reserve_type": "Site-Specific",
-                #     "loop": "UPPER PINES ",
-                #     "quantities": null,
-                #     "site": "043"
-                # }
-                results.append({
-                    "date": date,
-                    "url": "https://www.recreation.gov/camping/campgrounds/{}/availability".format(campground['id']),
-                    "campground": campground,
-                    "campsite": site['site'],
-                })
+                return True
+        return False
+
+    results = []
+    for site_id, site in resp.json()['campsites'].iteritems():
+        if _rgov_site_has_availability(site):
+            results.append({
+                "date": date,
+                "url": "https://www.recreation.gov/camping/campgrounds/{}/availability".format(campground['id']),
+                "campground": campground,
+                "campsite": site['site'],
+            })
 
     return results
 
