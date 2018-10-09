@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import itertools
 import json
 import os
 import random
@@ -13,14 +14,47 @@ from slackclient import SlackClient
 
 app = flask.Flask(__name__)
 
+#: Url format for HTTP api requests to recreation.gov for a given campsite id.
+CAMPGROUND_URL = "https://www.recreation.gov/camping/campgrounds/{id}"
+
 #: Maps known general general camping areas to reserve-america-scraper
 #: campground names.
-KNOWN_CAMPGROUNDS = {
-    'yosemite': ['UPPER_PINES', 'LOWER_PINES', 'NORTH_PINES'],
-    'tuolumne': ['TUOLUMNE'],
-    'easy': ['ANTHONY_CHABOT'],
-}
-
+CAMPGROUNDS = [
+    {
+        "short_name": "Upper Pines",
+        "name": "UPPER_PINES",
+        "id": "232447",
+        "tags": ["yosemite-valley", "yosemite"],
+    },
+    {
+        "short_name": "Lower Pines",
+        "name": "LOWER_PINES",
+        "id": "232450",
+        "tags": ["yosemite-valley", "yosemite"],
+    },
+    {
+        "short_name": "North Pines",
+        "name": "NORTH_PINES",
+        "id": "232449",
+        "tags": ["yosemite-valley", "yosemite"],
+    },
+    {
+        "short_name": "Dry Gulch",
+        "name": "DRY_GULCH",
+        "id": "233842",
+        "tags": ["yosemite"],
+    },
+    {
+        "short_name": "Tuolumne Meadows",
+        "name": "TUOLOUMME",
+        "id": "232448",
+        "tags": ["yosemite", "tuolumne"],
+    },
+]
+#: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
+#: collection defined above. CAMPGROUNDS is the authoriative source for this
+#: data.
+CAMPGROUND_TAGS = list(itertools.chain.from_iterable([cg['tags'] for cg in CAMPGROUNDS]))
 #: The API token for the slack bot can be obtained via:
 #: https://api.slack.com/apps/AD3G033C4/oauth?
 SLACK_API_KEY = os.getenv('SLACK_API_KEY')
@@ -132,6 +166,11 @@ def add_watcher(user_id, campground, start, length):
     })
 
 
+@app.route('/meta/campgrounds')
+def meta_campgrounds():
+    return flask.jsonify(CAMPGROUNDS)
+
+
 @app.route('/watchers')
 def watchers_list():
     return flask.jsonify(WATCHERS.list())
@@ -189,6 +228,40 @@ def slack_list_watchers():
         })
 
 
+def slack_list_campgrounds(tags):
+    cgs = []
+    for cg in CAMPGROUNDS:
+        # Check intersection if tags is non-empty.
+        if tags and not set(tags) & set(cg['tags']):
+            continue
+        cgs.append({
+            "fallback": "Campground metadata",
+            "mrkdwn_in": ["text"],
+            "title": cg['short_name'],
+            "title_link": CAMPGROUND_URL.format(id=cg['id']),
+            "fields": [
+                {
+                    "title": "tags",
+                    "value": ", ".join(cg['tags']),
+                    "short": True,
+                },
+            ],
+        })
+
+    if cgs:
+        return flask.jsonify({
+            "response_type": "in_channel",
+            "text": "Campgrounds",
+            "attachments": cgs,
+        })
+    else:
+        return flask.jsonify({
+            "response_type": "in_channel",
+            "text": "No campgrounds match the given tags.",
+        })
+
+
+
 @app.route('/slack/actions', methods=['POST'])
 def slack_actions():
     payload = json.loads(flask.request.values['payload'])
@@ -231,15 +304,33 @@ def slack_slash_commands():
 
     Commands:
 
-    /crush watch <tuolumne|yosemite> <date> <length>
+    /crush watch <campground-tag> <DD/MM/YY> <length>
     ------------------------------------------------------
     Registers a new watcher for a reservation. This will begin a periodic
-    scraping process against the reserve america website. When succesful we'll
+    scraping process against the recreation.gov website. When succesful we'll
     send you a slack message with results.
+
+    Campgrounds are selected according to `campground-tag` you provide. The bot
+    will attempt to find sites within any campground that matches the tag you
+    provide.
+
+    To list campgrounds and their tags, use the `campgrounds` command.
 
     /crush list
     ----------------------
     Lists active watchers for all reservations.
+
+    /crush campgrounds [tags...]
+    ------------------
+    Lists known campgrounds, optionally filtered by those that match any of the
+    provided tags. For example, if you wish to list what the bot considers
+    a 'yosemite-valley' campground use `/crush campgrounds yosemite-valley`.
+
+    Syntax:
+        - Square brackets, as in `[param]`, denote optional parameters.
+        - Angle brackets, as in `<param>`, denote required parameters.
+        - Ellipsis, `...` following a parameter denote a space-separated list.
+
     """
     raw_data = flask.request.get_data()
     if not verify_slack_request(
@@ -258,15 +349,16 @@ def slack_slash_commands():
         })
 
     # Request payload mangling and subcommand delegation occurs.
-    command = text.split(' ', 1)[0]
+    parts = text.split(' ')
+    command = parts[0]
+    args = parts[1:]
     if command == 'watch':
-        args = text.split(' ')
-        if len(args) != 4:
+        if len(args) != 3:
             return flask.jsonify({
                 "response_type": "ephemeral",
                 "text": "Please use a format like `tuolumne 09/28/18 3`."
             })
-        _, campground, start, length = args
+        campground, start, length = args
 
         try:
             date = arrow.get(start, 'DD/MM/YY')
@@ -280,6 +372,8 @@ def slack_slash_commands():
         return add_watcher(user_id, campground, start, int(length))
     elif command == 'list':
         return slack_list_watchers()
+    elif command == 'campgrounds':
+        return slack_list_campgrounds(args)
     elif command == 'help':
         return flask.jsonify({
             "response_type": "ephemeral",
