@@ -100,10 +100,24 @@ def run(watcher_id, date, length, campground):
     for site_id, site in resp.json()['campsites'].iteritems():
         for avdate, status in list(site['availabilities'].iteritems())[:length]:
             if status.lower() == 'available':
+                # Note: the site payload is shaped like:
+                # {
+                #     "availabilities": {
+                #         "2018-10-05T00:00:00Z": "Reserved",
+                #         ...
+                #         "2018-10-20T00:00:00Z": "reserved"
+                #     },
+                #     "campsite_id": "99",
+                #     "campsite_reserve_type": "Site-Specific",
+                #     "loop": "UPPER PINES ",
+                #     "quantities": null,
+                #     "site": "043"
+                # }
                 results.append({
                     "date": date,
                     "url": "https://www.recreation.gov/camping/campgrounds/{}/availability".format(campground['id']),
                     "campground": campground,
+                    "campsite": site['site'],
                 })
 
     return results
