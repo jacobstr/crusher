@@ -43,6 +43,12 @@ CAMPGROUNDS = [
         "id": "233842",
         "tags": ["yosemite"],
     },
+    {
+        "short_name": "Tuolumne Meadows",
+        "name": "TUOLOUMME",
+        "id": "232448",
+        "tags": ["yosemite", "tuolumne"],
+    },
 ]
 
 CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', 'http://localhost:5000/watchers/{id}/results')
