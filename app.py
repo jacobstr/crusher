@@ -54,7 +54,7 @@ CAMPGROUNDS = [
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
 #: data.
-CAMPGROUND_TAGS = list(itertools.chain.from_iterable([cg['tags'] for cg in CAMPGROUNDS]))
+CAMPGROUND_TAGS = list(set(itertools.chain.from_iterable([cg['tags'] for cg in CAMPGROUNDS])))
 #: The API token for the slack bot can be obtained via:
 #: https://api.slack.com/apps/AD3G033C4/oauth?
 SLACK_API_KEY = os.getenv('SLACK_API_KEY')
@@ -143,11 +143,11 @@ def make_watcher(user_id, campground, start, length):
 
 
 def add_watcher(user_id, campground, start, length):
-    if campground not in KNOWN_CAMPGROUNDS.keys():
+    if campground not in CAMPGROUND_TAGS:
         return flask.jsonify({
             "response_type": "ephemeral",
             "text": "Unknown camping area, please select one of {}".format(
-                ', '.join(KNOWN_CAMPGROUNDS.keys()),
+                ', '.join(CAMPGROUND_TAGS),
             )
         })
 
@@ -169,6 +169,11 @@ def add_watcher(user_id, campground, start, length):
 @app.route('/meta/campgrounds')
 def meta_campgrounds():
     return flask.jsonify(CAMPGROUNDS)
+
+
+@app.route('/meta/tags')
+def meta_campground_tags():
+    return flask.jsonify(CAMPGROUND_TAGS)
 
 
 @app.route('/watchers')
