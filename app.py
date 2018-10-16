@@ -50,6 +50,18 @@ CAMPGROUNDS = [
         "id": "232448",
         "tags": ["yosemite", "tuolumne"],
     },
+    {
+        "short_name": "Crane Flat",
+        "name": "CRANE_FLAT",
+        "id": "232452",
+        "tags": ["yosemite"],
+    },
+    {
+        "short_name": "Hodgdon Meadow",
+        "name": "HODGDON_MEADOW",
+        "id": "232451",
+        "tags": ["yosemite"],
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
