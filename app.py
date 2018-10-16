@@ -16,48 +16,25 @@ LOGGER = logging.getLogger(__name__)
 
 #: Url format for HTTP api requests to recreation.gov for a given campsite id.
 CAMPGROUND_URL = "https://www.recreation.gov/camping/campgrounds/{id}"
-
-#: Somewhat customized crusherbot metadata.
-CAMPGROUNDS = [
-    {
-        "short_name": "Upper Pines",
-        "name": "UPPER_PINES",
-        "id": "232447",
-        "tags": ["yosemite-valley", "yosemite"],
-    },
-    {
-        "short_name": "Lower Pines",
-        "name": "LOWER_PINES",
-        "id": "232450",
-        "tags": ["yosemite-valley", "yosemite"],
-    },
-    {
-        "short_name": "North Pines",
-        "name": "NORTH_PINES",
-        "id": "232449",
-        "tags": ["yosemite-valley", "yosemite"],
-    },
-    {
-        "short_name": "Dry Gulch",
-        "name": "DRY_GULCH",
-        "id": "233842",
-        "tags": ["yosemite"],
-    },
-    {
-        "short_name": "Tuolumne Meadows",
-        "name": "TUOLOUMME",
-        "id": "232448",
-        "tags": ["yosemite", "tuolumne"],
-    },
-]
-
 CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', 'http://localhost:5000/watchers/{id}/results')
+CRUSHER_CAMPGROUNDS_URL = os.getenv('CRUSHER_CAMPGROUNDS_URL', 'http://localhost:5000/meta/campgrounds')
 CRUSHER_WATCHER_LISTING_URL = os.getenv('CRUSHER_WATCHER_LISTING_URL', 'http://localhost:5000/watchers')
 CRUSHER_POLLING_INTERVAL_MINUTES = int(os.getenv('CRUSHER_POLLING_INTERVAL_MINUTES', '3'))
 
+
+def campgrounds():
+    try:
+        resp = requests.get(CRUSHER_CAMPGROUNDS_URL)
+        resp.raise_for_status()
+        return resp.json()
+    except:
+        LOGGER.exception("failed to get campgrounds - proceeding with empty campgrounds.")
+        return []
+
+
 def campgrounds_by_tag(tag):
     results = []
-    for cg in CAMPGROUNDS:
+    for cg in campgrounds():
         if tag in cg['tags']:
             results.append(cg)
     return results
