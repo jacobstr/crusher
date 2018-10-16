@@ -62,6 +62,12 @@ CAMPGROUNDS = [
         "id": "232451",
         "tags": ["yosemite"],
     },
+    {
+        "short_name": "Dirt Flat",
+        "name": "DIRT_FLAT",
+        "id": "233839",
+        "tags": ["yosemite"],
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
