@@ -134,7 +134,7 @@ def run(watcher_id, date, length, campground):
             avparsed = arrow.get(avdate)
             # Ignore dates outside of our interested range.
             if not (avparsed >= start_date and avparsed <= end_date):
-                pass
+                continue
             if status.lower() == 'available':
                 total_matched = total_matched + 1
         return total_matched / total_days
