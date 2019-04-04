@@ -379,7 +379,7 @@ def slack_slash_commands():
         if len(args) != 3:
             return flask.jsonify({
                 "response_type": "ephemeral",
-                "text": "Please use a format like `tuolumne 09/28/18 3`."
+                "text": "Please use a format like `tuolumne DD/MM/YY <lenght>`."
             })
         campground, start, length = args
 
