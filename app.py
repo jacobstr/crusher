@@ -496,7 +496,7 @@ def make_results_attachments(results):
         "title": "Found a site on {} at {} site {}.".format(
             result['date'],
             result['campground']['short_name'],
-            result['campsite'],
+            result['campsite']['site'],
         ),
         "title_link": result['url'],
     } for result in results]
