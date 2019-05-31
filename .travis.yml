@@ -1,0 +1,14 @@
+language: python
+services:
+  - docker
+python:
+  - "3.6"
+script:
+  - docker build -t jacobstr/reserver:${TRAVIS_COMMIT:0:8} .
+deploy:
+  provider:
+    script: >-
+      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      docker tag jacobstr/reserver:${TRAVIS_COMMIT:0:8} jacobstr/reserver:latest
+      docker push jacobstr/reserver:${TRAVIS_COMMIT:0:8}
+      docker push jacobstr/reserver:latest
