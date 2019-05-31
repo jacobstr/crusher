@@ -14,7 +14,7 @@ import schedule
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
 
-REQUESTS_LOGGER = logging.getLogger("requests.packages.urllib3")
+REQUESTS_LOGGER = logging.getLogger("urllib3")
 REQUESTS_LOGGER.setLevel(logging.DEBUG)
 REQUESTS_LOGGER.propagate = True
 
