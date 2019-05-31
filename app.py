@@ -14,6 +14,10 @@ import schedule
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
 
+REQUESTS_LOGGER = logging.getLogger("requests.packages.urllib3")
+REQUESTS_LOGGER.setLevel(logging.DEBUG)
+REQUESTS_LOGGER.propagate = True
+
 #: Url format for HTTP api requests to recreation.gov for a given campsite id.
 CAMPGROUND_URL = "https://www.recreation.gov/camping/campgrounds/{id}"
 CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', 'http://localhost:5000/watchers/{id}/results')
