@@ -14,10 +14,6 @@ import schedule
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
 
-REQUESTS_LOGGER = logging.getLogger("urllib3")
-REQUESTS_LOGGER.setLevel(logging.DEBUG)
-REQUESTS_LOGGER.propagate = True
-
 #: Url format for HTTP api requests to recreation.gov for a given campsite id.
 CAMPGROUND_URL = "https://www.recreation.gov/camping/campgrounds/{id}"
 CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', 'http://localhost:5000/watchers/{id}/results')
@@ -94,6 +90,7 @@ def run(watcher_id, date, length, campground):
     )
 
     if resp.status_code != 200:
+        logging.error("request failed: %s, %s", resp.headers, resp.content)
         return []
 
     responses = [resp.json()]
@@ -104,12 +101,14 @@ def run(watcher_id, date, length, campground):
     if start_date.month != end_date.month:
         resp = requests.get(
             'https://www.recreation.gov/api/camps/availability/campground/{id}/month'.format(id=campground['id']),
+            headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'},
             params={
                 'start_date': end_date.format('YYYY-MM-01T00:00:00') + 'Z',
             }
         )
 
         if resp.status_code != 200:
+            logging.error("request failed: %s, %s", resp.headers, resp.content)
             return []
 
         responses.append(resp.json())
