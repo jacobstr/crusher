@@ -101,7 +101,7 @@ def run(watcher_id, date, length, campground):
         resp = requests.get(
             'https://www.recreation.gov/api/camps/availability/campground/{id}/month'.format(id=campground['id']),
             params={
-                'start_date': end_date.format('YYYY-MM-01T00:00:00Z'),
+                'start_date': end_date.format('YYYY-MM-01T00:00:00') + 'Z',
             }
         )
 
