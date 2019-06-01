@@ -9,5 +9,5 @@ WORKDIR /home/crusher
 USER crusher
 
 COPY app.py .
-
-CMD [ "python", "/home/crusher/app.py" ]
+ENV FLASK_APP=/home/crusher/app.py
+CMD [ "python", "-m", "flask", "run", "--host",  "0.0.0.0"]
