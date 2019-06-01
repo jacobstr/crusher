@@ -14,9 +14,10 @@ LOGGER = logging.getLogger(__name__)
 
 #: Url format for HTTP api requests to recreation.gov for a given campsite id.
 CAMPGROUND_URL = "https://www.recreation.gov/camping/campgrounds/{id}"
-CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', 'http://localhost:5000/watchers/{id}/results')
-CRUSHER_CAMPGROUNDS_URL = os.getenv('CRUSHER_CAMPGROUNDS_URL', 'http://localhost:5000/meta/campgrounds')
-CRUSHER_WATCHER_LISTING_URL = os.getenv('CRUSHER_WATCHER_LISTING_URL', 'http://localhost:5000/watchers')
+CRUSHER_HOST = os.getenv('CRUSHER_HOST', 'http://localhost:5000')
+CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', '{}/watchers/{{id}}/results'.format(CRUSHER_HOST))
+CRUSHER_CAMPGROUNDS_URL = os.getenv('CRUSHER_CAMPGROUNDS_URL', '{}/meta/campgrounds'.format(CRUSHER_HOST))
+CRUSHER_WATCHER_LISTING_URL = os.getenv('CRUSHER_WATCHER_LISTING_URL', '{}/watchers'.format(CRUSHER_HOST))
 CRUSHER_POLLING_INTERVAL_MINUTES = int(os.getenv('CRUSHER_POLLING_INTERVAL_MINUTES', '3'))
 
 
