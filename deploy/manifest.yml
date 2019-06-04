@@ -1,0 +1,76 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: crusher
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crusher-server
+  namespace: crusher
+  labels:
+    app: crusher
+    component: server
+spec:
+  type: ClusterIP
+  selector:
+    app: crusher
+    component: server
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crusher-server
+  namespace: crusher
+  labels:
+    app: crusher
+    component: server
+spec:
+  selector:
+    matchLabels:
+      app: crusher
+      component: server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: crusher
+        component: server
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - image: koobz/crusher-server
+          name: crusher-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crusher-worker
+  namespace: crusher
+  labels:
+    app: crusher
+    component: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crusher
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: crusher
+        component: worker
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - image: koobz/crusher-worker
+          name: crusher-worker
+          env:
+            - name: CRUSHER_HOST
+              value: http://crusher-server

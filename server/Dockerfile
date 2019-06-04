@@ -1,0 +1,13 @@
+FROM python:3.7.3-stretch
+
+COPY requirements.txt /tmp/
+
+RUN pip install -r /tmp/requirements.txt
+
+RUN useradd --create-home crusher
+WORKDIR /home/crusher
+USER crusher
+
+COPY app.py .
+ENV FLASK_APP=/home/crusher/app.py
+CMD [ "python", "-m", "flask", "run", "--host",  "0.0.0.0"]

@@ -3,15 +3,18 @@
 The API server that responds to slack webhooks and provides discovery endpoints
 utilized by the corresponding [worker](https://github.com/jacobstr/reserver).
 
-# Running on a PI
+I was originally running this thing on a Raspberry PI under my couch, but I'm
+a Cloud enthusiast now (I guess 🙄 ) and thougt it'd be a good hobby project.
 
-I was tempted to install this thing on a small k8s cluster in GCP but though
-better of it - $10/mo was just another recurring bill on top of Netflix and
-Sour candies that I couldn't afford. Instead it's running on a Raspberry PI,
-configured like one might have configured their "pets" in the past:
+# Development
 
-- It's got some upstart jobs in /etc/init.
-- It's using virtualenvs.
-- It's got a /crush folder with a bunch of jank inside of it.
+The repo uses:
 
-There's a crontab to pull from git periodically.
+* minikube (v1.1.0): for a local development kube cluster.
+* skaffold (v0.30.0): to tighten the build/deploy local development loop.
+  Skaffold watches your code and kubernetes manifests for changes and continuosly
+  updates your minikube as either your application, or it's deployment
+  configuration changes.
+
+The small [dev.sh](./dev.sh) script bootstraps the minikube docker environment
+settings and runs skaffold for you.
