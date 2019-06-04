@@ -1,15 +1,10 @@
-language: python
+language: generic
 
 services:
   - docker
 
-python:
-  - "3.6"
-
 stages:
   - name: build
-  - name: push
-    if: branch = master
 
 jobs:
   include:
@@ -21,10 +16,6 @@ jobs:
       - docker build -t $WORKER_IMAGE .
       - cd ../server
       - docker build -t $SERVER_IMAGE .
-    - stage: push
-      script:
-      - export WORKER_IMAGE=koobz/crusher-server:${TRAVIS_COMMIT:0:8}
-      - export SERVER_IMAGE=koobz/crusher-worker:${TRAVIS_COMMIT:0:8}
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - docker push $WORKER_IMAGE
       - docker push $SERVER_IMAGE
