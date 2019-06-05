@@ -144,7 +144,7 @@ class WatchersRepo(object):
 
 
 #: Global disk-based database of watcher registrations.
-WATCHERS = WatchersRepo('/tmp/crusher.db')
+WATCHERS = WatchersRepo(REPO_PATH)
 
 
 def random_id():
