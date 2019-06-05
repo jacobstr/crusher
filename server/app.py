@@ -84,6 +84,8 @@ PUBLIC_RESULTS_CHANNEL = "campsites"
 #: This should match the name of the application, using a different name
 #: is a from of masquerading and may require additional permissions.
 BOT_NAME = "CrusherScrape"
+#: The path to the watcher database.
+REPO_PATH = os.getenv('CRUSHER_REPO_PATH', '/tmp/crusher.db')
 
 
 class WatchersRepo(object):

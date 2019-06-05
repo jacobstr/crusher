@@ -43,9 +43,19 @@ spec:
         component: server
     spec:
       terminationGracePeriodSeconds: 5
+      volumes:
+        - name: crusher-database
+          persistentVolumeClaim:
+            claimName: crusher-database
       containers:
         - image: koobz/crusher-server:9da226c1
           name: crusher-server
+          env:
+          - name: CRUSHER_REPO_PATH
+            value: /data/crusher.db
+          volumeMounts:
+          - mountPath: "/data"
+            name: crusher-database
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -92,17 +102,3 @@ spec:
       - backend:
           serviceName: crusher-server
           servicePort: 5000
----
-apiVersion: certmanager.k8s.io/v1alpha1
-kind: Certificate
-metadata:
-  name: crusher
-  namespace: crusher
-spec:
-  secretName: crusher-tls
-  issuerRef:
-    name: letsencrypt-production
-    kind: ClusterIssuer
-  dnsNames:
-  - crusher.k8s.koobz.io
-  renewBefore: 720h

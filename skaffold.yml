@@ -1,13 +1,13 @@
 apiVersion: skaffold/v1beta11
 kind: Config
 build:
-  local: {}
+  local:
+    push: false
   artifacts:
     - image: koobz/crusher-dev-server
       context: server
     - image: koobz/crusher-dev-worker
       context: worker
 deploy:
-  kubectl:
-    manifests:
-      - deploy/*.yml
+  kustomize:
+    path: deploy/env/dev
