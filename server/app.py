@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import itertools
 import json
+import logging
 import os
 import random
 import shelve
@@ -11,6 +12,9 @@ import arrow
 import flask
 import humanhash
 from slackclient import SlackClient
+
+logging.basicConfig(level=logging.DEBUG)
+LOGGER = logging.getLogger(__name__)
 
 app = flask.Flask(__name__)
 
