@@ -4,7 +4,7 @@ The API server that responds to slack webhooks and provides discovery endpoints
 utilized by the corresponding [worker](https://github.com/jacobstr/reserver).
 
 I was originally running this thing on a Raspberry PI under my couch, but I'm
-a Cloud enthusiast now (I guess 🙄 ) and thougt it'd be a good hobby project.
+a Cloud enthusiast now 🙄 and thought it'd be a good hobby project.
 
 # Development
 
