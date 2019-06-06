@@ -1,4 +1,4 @@
-FROM python:3.7.3-stretch
+FROM python:2.7
 
 COPY requirements.txt /tmp/
 

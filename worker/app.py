@@ -4,6 +4,7 @@ import logging
 import os
 import random
 import time
+import json
 
 import arrow
 import requests
@@ -89,8 +90,10 @@ def run(watcher_id, date, length, campground):
     )
 
     if resp.status_code != 200:
-        logging.error("request failed: %s, %s", resp.headers, resp.content)
+        LOGGER.error("request failed: %s, %s", resp.headers, resp.content)
         return []
+
+    LOGGER.debug("response from recreation.gov: %s", json.dumps(resp.json()))
 
     responses = [resp.json()]
     # The api requires getting availabilities by month at a time. If we're
@@ -107,7 +110,7 @@ def run(watcher_id, date, length, campground):
         )
 
         if resp.status_code != 200:
-            logging.error("request failed: %s, %s", resp.headers, resp.content)
+            LOGGER.error("request failed: %s, %s", resp.headers, resp.content)
             return []
 
         responses.append(resp.json())
@@ -131,7 +134,7 @@ def run(watcher_id, date, length, campground):
     def _availability_fraction(site, start_date, end_date):
         interested_dates = []
         total_days = (end_date - start_date).days + 1
-        total_matched = 0
+        total_matched = 0.0
         for avdate, status in list(site['availabilities'].iteritems()):
             avparsed = arrow.get(avdate)
             # Ignore dates outside of our interested range.
