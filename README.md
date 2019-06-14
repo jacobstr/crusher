@@ -18,3 +18,11 @@ The repo uses:
 
 The small [dev.sh](./dev.sh) script bootstraps the minikube docker environment
 settings and runs skaffold for you.
+
+# Deployment
+
+Secret sauce:
+
+```bash
+kustomize build deploy/env/prod | kubectl apply -f -
+```
