@@ -65,7 +65,7 @@ def get_watchers():
 
 
 def run(watcher_id, date, length, campground):
-    start_date = arrow.get(date, 'DD/MM/YYYY', tzinfo=campground['tz'])
+    start_date = arrow.get(date, 'DD/MM/YYYY')
     end_date = start_date.shift(days=length)
 
     # A sample site payload:
