@@ -404,7 +404,14 @@ def slack_slash_commands():
                 "response_type": "ephemeral",
                 "text": "Could not parse your date, please use a DD/MM/YY format.",
             })
-
+        # Hackish workaround: 01/01/2019 successfully parses via DD/MM/YY above,
+        # but will subsequently get interpretted as e.g. "2020" - ignoring the
+        # latter two characters.
+        if arrow.format('DD/MM/YY') != start:
+            return flask.jsonify({
+                "response_type": "ephemeral",
+                "text": "Could not parse your date, please use a DD/MM/YY format.",
+            })
         user_id = flask.request.form['user_id']
         return add_watcher(user_id, campground, start, int(length))
     elif command == 'list':

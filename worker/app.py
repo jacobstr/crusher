@@ -79,7 +79,7 @@ def availability_fraction(site, start_date, end_date):
 
 
 def run(watcher_id, date, length, campground):
-    start_date = arrow.get(date, 'DD/MM/YYYY')
+    start_date = arrow.get(date, 'DD/MM/YY')
     end_date = start_date.shift(days=length)
 
     # A sample site payload:
