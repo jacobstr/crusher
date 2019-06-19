@@ -64,6 +64,20 @@ def get_watchers():
     return resp.json()
 
 
+def availability_fraction(site, start_date, end_date):
+    interested_dates = []
+    total_days = (end_date - start_date).days
+    total_matched = 0.0
+    for avdate, status in list(site['availabilities'].iteritems()):
+        avparsed = arrow.get(avdate)
+        # Ignore dates outside of our interested range.
+        if not (avparsed >= start_date and avparsed < end_date):
+            continue
+        if status.lower() == 'available':
+            total_matched = total_matched + 1
+    return total_matched / total_days
+
+
 def run(watcher_id, date, length, campground):
     start_date = arrow.get(date, 'DD/MM/YYYY')
     end_date = start_date.shift(days=length)
@@ -131,29 +145,16 @@ def run(watcher_id, date, length, campground):
                 availabilities_by_site[site_id]['availabilities'].update(site['availabilities'])
         return availabilities_by_site
 
-    def _availability_fraction(site, start_date, end_date):
-        interested_dates = []
-        total_days = (end_date - start_date).days + 1
-        total_matched = 0.0
-        for avdate, status in list(site['availabilities'].iteritems()):
-            avparsed = arrow.get(avdate)
-            # Ignore dates outside of our interested range.
-            if not (avparsed >= start_date and avparsed <= end_date):
-                continue
-            if status.lower() == 'available':
-                total_matched = total_matched + 1
-        return total_matched / total_days
-
     results = []
     for site_id, site in _collect_sites(responses).iteritems():
-        availability_fraction = _availability_fraction(site, start_date, end_date)
-        if availability_fraction > 0:
+        avfraction = availability_fraction(site, start_date, end_date)
+        if avfraction > 0:
             results.append({
                 "date": date,
                 "url": "https://www.recreation.gov/camping/campgrounds/{}/availability".format(campground['id']),
                 "campground": campground,
                 "campsite": site['site'],
-                "fraction": availability_fraction,
+                "fraction": avfraction,
             })
 
     # Return the list of sites by their availability fraction of the dates
