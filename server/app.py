@@ -407,7 +407,7 @@ def slack_slash_commands():
         # Hackish workaround: 01/01/2019 successfully parses via DD/MM/YY above,
         # but will subsequently get interpretted as e.g. "2020" - ignoring the
         # latter two characters.
-        if arrow.format('DD/MM/YY') != start:
+        if date.format('DD/MM/YY') != start:
             return flask.jsonify({
                 "response_type": "ephemeral",
                 "text": "Could not parse your date, please use a DD/MM/YY format.",
