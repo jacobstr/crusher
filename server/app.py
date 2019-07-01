@@ -80,6 +80,13 @@ CAMPGROUNDS = [
         "tags": ["yosemite"],
         "tz": "US/Pacific",
     },
+    {
+        "short_name": "Tuolumne Meadows",
+        "name": "TOULUMNE_MEADOWS",
+        "id": "232448",
+        "tags": ["yosemite", "tuolumne"],
+        "tz": "US/Pacific",
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
