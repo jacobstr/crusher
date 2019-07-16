@@ -87,6 +87,20 @@ CAMPGROUNDS = [
         "tags": ["yosemite", "tuolumne"],
         "tz": "US/Pacific",
     },
+    {
+        "short_name": "Kalaloch",
+        "name": "KALALOCH",
+        "id": "232464",
+        "tags": ["mt-olympic"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "Sol Duc",
+        "name": "SOL_DUC",
+        "id": "251906",
+        "tags": ["mt-olympic"],
+        "tz": "US/Pacific",
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
