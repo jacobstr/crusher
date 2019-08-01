@@ -272,8 +272,11 @@ def watchers_results(watcher_id):
     return flask.jsonify(watcher)
 
 
-def slack_list_watchers(user_id):
-    watchers = [watcher for watcher in WATCHERS.list() if  watcher['user_id'] == user_id]
+def slack_list_watchers(user_id=None):
+    watchers = WATCHERS.list()
+    if user_id:
+        watchers = [watcher for watcher in WATCHERS.list() if  watcher['user_id'] == user_id]
+
     if len(watchers):
         return flask.jsonify({
             "response_type": "in_channel",
@@ -376,7 +379,11 @@ def slack_slash_commands():
 
     /crush list
     ----------------------
-    Lists active watchers for all reservations.
+    Lists active watchers for the current user.
+
+    /crush list-all
+    ----------------------
+    Lists active watchers for all users.
 
     /crush campgrounds [tags...]
     ------------------
@@ -437,6 +444,8 @@ def slack_slash_commands():
         return add_watcher(user_id, campground, start, int(length))
     elif command == 'list':
         return slack_list_watchers(flask.request.form['user_id'])
+    elif command == 'list-all':
+        return slack_list_watchers()
     elif command == 'campgrounds':
         return slack_list_campgrounds(args)
     elif command == 'help':
