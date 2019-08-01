@@ -535,7 +535,8 @@ def make_results_attachments(results):
         "fallback": "Campsite result.",
         "color": "#36a64f",
         "mrkdwn_in": ["text"],
-        "title": "Found a site on {} at {} site {} for {:.0%} of requested stay.".format(
+        "title": "Found a {} on {} at {} site {} for {:.0%} of requested stay.".format(
+            ':unicorn_face:' if result['fraction'] == 1 else 'site',
             result['date'],
             result['campground']['short_name'],
             result['campsite']['site'],
