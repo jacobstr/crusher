@@ -101,6 +101,13 @@ CAMPGROUNDS = [
         "tags": ["mt-olympic"],
         "tz": "US/Pacific",
     },
+    {
+        "short_name": "Point Reyes National Seashore",
+        "name": "POINT_REYES",
+        "id": "233359",
+        "tags": ["point-reyes"],
+        "tz": "US/Pacific",
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
