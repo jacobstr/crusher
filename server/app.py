@@ -108,6 +108,34 @@ CAMPGROUNDS = [
         "tags": ["point-reyes"],
         "tz": "US/Pacific",
     },
+    {
+        "short_name": "Cottonwood",
+        "name": "COTTONWOOD",
+        "id": "272299",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "Jumbo Rocks",
+        "name": "JUMBO_ROCKS",
+        "id": "272300",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "Indian Cove",
+        "name": "INDIAN_COVE",
+        "id": "232472",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "Black Rock",
+        "name": "BLACK_ROCK",
+        "id": "232473",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
