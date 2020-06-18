@@ -136,6 +136,27 @@ CAMPGROUNDS = [
         "tags": ["jtree"],
         "tz": "US/Pacific",
     },
+    {
+        "short_name": "St. Mary",
+        "name": "ST_MARY",
+        "id": "232492",
+        "tags": ["gnp"],
+        "tz": "US/Mountain",
+    },
+    {
+        "short_name": "Fish Creek",
+        "name": "FISH_CREEK",
+        "id": "232493",
+        "tags": ["gnp"],
+        "tz": "US/Mountain",
+    },
+    {
+        "short_name": "Many Glacier",
+        "name": "MANY_GLACIER",
+        "id": "251869",
+        "tags": ["gnp"],
+        "tz": "US/Mountain",
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
