@@ -1,0 +1,14 @@
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: crusher
+  namespace: crusher
+spec:
+  secretName: crusher-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+  - crusher.k8s.koobz.io
+  renewBefore: 720h

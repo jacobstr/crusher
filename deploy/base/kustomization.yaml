@@ -1,2 +1,3 @@
 resources:
-- manifest.yaml
+- deploy-server.yaml
+- deploy-worker.yaml

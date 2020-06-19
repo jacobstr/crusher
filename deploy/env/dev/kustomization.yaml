@@ -1,0 +1,5 @@
+bases:
+- ../../base
+- ../../prereqs
+resources:
+- disk.yaml

@@ -1,0 +1,18 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: crusher
+  namespace: crusher
+spec:
+  tls:
+  - hosts:
+    - crusher.k8s.koobz.io
+    secretName: crusher-tls
+  rules:
+  - host: crusher.k8s.koobz.io
+    http:
+      paths:
+      - backend:
+          serviceName: crusher-server
+          servicePort: 5000
