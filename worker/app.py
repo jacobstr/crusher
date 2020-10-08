@@ -99,7 +99,7 @@ def run(watcher_id, date, length, campground):
         'https://www.recreation.gov/api/camps/availability/campground/{id}/month'.format(id=campground['id']),
         headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'},
         params={
-            'start_date': start_date.format('YYYY-MM-01T00:00:00') + 'Z',
+            'start_date': start_date.format('YYYY-MM-01T00:00:00.000') + 'Z',
         }
     )
 
@@ -119,7 +119,7 @@ def run(watcher_id, date, length, campground):
             'https://www.recreation.gov/api/camps/availability/campground/{id}/month'.format(id=campground['id']),
             headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'},
             params={
-                'start_date': end_date.format('YYYY-MM-01T00:00:00') + 'Z',
+                'start_date': end_date.format('YYYY-MM-01T00:00:00.000') + 'Z',
             }
         )
 
