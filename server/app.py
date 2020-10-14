@@ -457,9 +457,9 @@ def slack_slash_commands():
     if not verify_slack_request(
         flask.request.headers['X-Slack-Signature'],
         flask.request.headers['X-Slack-Request-Timestamp'],
-        raw_data,
+        raw_data.decode('utf-8'),
     ):
-        return flask.Response(status_code=400)
+        return flask.Response(status=400)
 
     text = flask.request.form['text']
     if len(text) == 0:
@@ -614,20 +614,20 @@ def make_results_attachments(results):
 # Thanks Jani Karhunen: https://janikarhunen.fi/verify-slack-requests-in-aws-lambda-and-python.html
 def verify_slack_request(slack_signature=None, slack_request_timestamp=None, request_body=None):
     ''' Form the basestring as stated in the Slack API docs. We need to make a bytestring. '''
-    basestring = "v0:{slack_request_timestamp}:{request_body}".format(
-        slack_request_timestamp=slack_request_timestamp,
-        request_body=request_body,
-    )
+    basestring = f"v0:{slack_request_timestamp}:{request_body}".encode('utf-8')
+
+    ''' Make the Signing Secret a bytestring too. '''
+    slack_signing_secret = bytes(SLACK_SIGNING_SECRET, 'utf-8')
 
     ''' Create a new HMAC "signature", and return the string presentation. '''
-    my_signature = 'v0=' + hmac.new(bytes(SLACK_SIGNING_SECRET, 'utf-8'), basestring.encode('utf-8'), hashlib.sha256).hexdigest()
+    my_signature = 'v0=' + hmac.new(slack_signing_secret, basestring, hashlib.sha256).hexdigest()
 
     ''' Compare the the Slack provided signature to ours.
     If they are equal, the request should be verified successfully.
     Log the unsuccessful requests for further analysis
     (along with another relevant info about the request). '''
-    if hmac.compare_digest(str(my_signature), str(slack_signature)):
+    if hmac.compare_digest(my_signature, slack_signature):
         return True
     else:
-        LOGGER.warning("Verification failed. my_signature: {my_signature}")
+        LOGGER.warning(f"Verification failed. my_signature: {my_signature} basestring: {basestring}")
         return False
