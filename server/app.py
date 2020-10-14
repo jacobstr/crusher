@@ -207,12 +207,12 @@ class WatchersRepo(object):
         return watchers
 
     def remove(self, watcher_id):
-        watchers = filter(lambda x: x['id'] != watcher_id, self.list())
+        watchers = [x for x in self.list() if x['id'] != watcher_id]
         self._set(watchers)
         return watchers
 
     def get(self, watcher_id):
-        watchers = filter(lambda x: x['id'] == watcher_id, self.list())
+        watchers = [x for x in self.list() if x['id'] == watcher_id]
         if len(watchers) > 0:
             return watchers[0]
         else:

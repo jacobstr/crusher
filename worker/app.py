@@ -74,7 +74,7 @@ def availability_fraction(site, start_date, end_date):
     interested_dates = []
     total_days = (end_date - start_date).days
     total_matched = 0.0
-    for avdate, status in list(site['availabilities'].iteritems()):
+    for avdate, status in list(site['availabilities'].items()):
         avparsed = arrow.get(avdate)
         # Ignore dates outside of our interested range.
         if not (avparsed >= start_date and avparsed < end_date):
@@ -151,7 +151,7 @@ def run(watcher, date, length, campground):
         """
         availabilities_by_site = {}
         for payload in responses:
-            for site_id, site in payload['campsites'].iteritems():
+            for site_id, site in payload['campsites'].items():
                 if not availabilities_by_site.get(site_id):
                     availabilities_by_site[site_id] = {
                         'site': site,
@@ -161,7 +161,7 @@ def run(watcher, date, length, campground):
         return availabilities_by_site
 
     results = []
-    for site_id, site in _collect_sites(responses).iteritems():
+    for site_id, site in _collect_sites(responses).items():
         avfraction = availability_fraction(site, start_date, end_date)
         if avfraction > 0:
             results.append({
