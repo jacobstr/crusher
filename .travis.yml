@@ -49,6 +49,6 @@ jobs:
         - echo "$KUBECONFIG" | base64 -d > ~/.kube/config
         - export KUBECONFIG=~/.kube/config
         - cd deploy/env/ci
-        - kustomize edit set image crusher-worker:$WORKER_IMAGE
-        - kustomize edit set image crusher-server:$SERVER_IMAGE
+        - kustomize edit set image koobz/crusher-worker=crusher-worker:$WORKER_IMAGE
+        - kustomize edit set image koobz/crusher-server=crusher-server:$SERVER_IMAGE
         - kustomize build . | kubectl apply --context crusher -n crusher --token $KUBECTL_TOKEN -f -
