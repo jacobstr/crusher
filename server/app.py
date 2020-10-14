@@ -620,7 +620,7 @@ def verify_slack_request(slack_signature=None, slack_request_timestamp=None, req
     )
 
     ''' Create a new HMAC "signature", and return the string presentation. '''
-    my_signature = 'v0=' + hmac.new(SLACK_SIGNING_SECRET, basestring, hashlib.sha256).hexdigest()
+    my_signature = 'v0=' + hmac.new(bytes(SLACK_SIGNING_SECRET), basestring, hashlib.sha256).hexdigest()
 
     ''' Compare the the Slack provided signature to ours.
     If they are equal, the request should be verified successfully.
