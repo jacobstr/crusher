@@ -25,7 +25,7 @@ spec:
           persistentVolumeClaim:
             claimName: crusher-database
       containers:
-        - image: koobz/crusher-server:alpha
+        - image: koobz/crusher-server
           imagePullPolicy: Always
           name: crusher-server
           env:

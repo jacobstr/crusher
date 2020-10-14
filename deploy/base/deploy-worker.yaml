@@ -21,7 +21,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-        - image: koobz/crusher-worker:alpha
+        - image: koobz/crusher-worker
           name: crusher-worker
           imagePullPolicy: Always
           env:
