@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
+import json
 import logging
 import os
 import random
 import time
-import json
+from pathlib import Path
 
 import arrow
 import requests
 import schedule
-
-from pathlib import Path
+from slackclient import SlackClient
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -23,6 +23,9 @@ CRUSHER_CAMPGROUNDS_URL = os.getenv('CRUSHER_CAMPGROUNDS_URL', '{}/meta/campgrou
 CRUSHER_WATCHER_LISTING_URL = os.getenv('CRUSHER_WATCHER_LISTING_URL', '{}/watchers'.format(CRUSHER_HOST))
 CRUSHER_POLLING_INTERVAL_MINUTES = int(os.getenv('CRUSHER_POLLING_INTERVAL_MINUTES', '3'))
 HEARTBEAT_FILENAME = os.getenv('CRUSHER_HEARTBEAT_FILENAME', '/tmp/worker-health')
+#: The API token for the slack bot can be obtained via:
+#: https://api.slack.com/apps/AD3G033C4/oauth?
+SLACK_API_KEY = os.getenv('SLACK_API_KEY')
 
 
 def campgrounds():
@@ -81,7 +84,7 @@ def availability_fraction(site, start_date, end_date):
     return total_matched / total_days
 
 
-def run(watcher_id, date, length, campground):
+def run(watcher, date, length, campground):
     start_date = arrow.get(date, 'DD/MM/YY')
     end_date = start_date.shift(days=length)
 
@@ -107,7 +110,16 @@ def run(watcher_id, date, length, campground):
     )
 
     if resp.status_code != 200:
-        LOGGER.error("request failed: %s, %s", resp.headers, resp.content)
+        LOGGER.error("request failed: %s, %s", watcher.get('user_id'), resp.headers, resp.content)
+        try:
+            slack = SlackClient(SLACK_API_KEY)
+            resp = slack.api_call(
+                "chat.postMessage",
+                channel="#campsites",
+                text="Campsite search failed for %s: <STATUS %s>: %s" % (watcher.get('user_id'), resp.text,resp.status_code),
+            )
+        except:
+            LOGGER.exception('failed to notify slack of error')
         return []
 
     LOGGER.debug("response from recreation.gov: %s", json.dumps(resp.json()))
@@ -189,7 +201,7 @@ def run_all():
         results = []
         for cg in campgrounds:
             results.extend(run(
-                watcher_id,
+                watcher,
                 date,
                 length_of_stay,
                 cg,
