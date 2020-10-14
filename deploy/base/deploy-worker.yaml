@@ -25,6 +25,8 @@ spec:
           name: crusher-worker
           imagePullPolicy: Always
           env:
+            - name: CRUSHER_HEARTBEAT_FILENAME
+              value: /tmp/worker-health
             - name: CRUSHER_HOST
               value: http://crusher-server
             - name: SLACK_SIGNING_SECRET
@@ -37,3 +39,14 @@ spec:
                 secretKeyRef:
                   name: crusher
                   key: SLACK_API_KEY
+          livenessProbe:
+            exec:
+              # Look for a /tmp/worker-health that has been modified
+              # within the past hour. If it hasn't the pod should be
+              # restarted as we touch the file every heartbeat check.
+              command:
+                - /bin/sh
+                - -c
+                - find /tmp/worker-health -mmin -60 | grep .
+            initialDelaySeconds: 600
+            periodSeconds: 600

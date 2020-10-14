@@ -8,7 +8,7 @@ humanhash==0.0.1
 idna==2.7
 itsdangerous==0.24
 Jinja2==2.10.1
-MarkupSafe==1.0
+MarkupSafe==1.1.1
 python-dateutil==2.7.3
 python-dotenv==0.9.1
 requests==2.20.0

@@ -10,6 +10,8 @@ import arrow
 import requests
 import schedule
 
+from pathlib import Path
+
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
 
@@ -20,6 +22,7 @@ CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', '{}/watchers/{{id}}/resul
 CRUSHER_CAMPGROUNDS_URL = os.getenv('CRUSHER_CAMPGROUNDS_URL', '{}/meta/campgrounds'.format(CRUSHER_HOST))
 CRUSHER_WATCHER_LISTING_URL = os.getenv('CRUSHER_WATCHER_LISTING_URL', '{}/watchers'.format(CRUSHER_HOST))
 CRUSHER_POLLING_INTERVAL_MINUTES = int(os.getenv('CRUSHER_POLLING_INTERVAL_MINUTES', '3'))
+HEARTBEAT_FILENAME = os.getenv('CRUSHER_HEARTBEAT_FILENAME', '/tmp/worker-health')
 
 
 def campgrounds():
@@ -192,6 +195,8 @@ def run_all():
                 cg,
             ))
         send_watcher_results(watcher_id, results)
+    LOGGER.info("writing heartbeat to %s", HEARTBEAT_FILENAME)
+    Path(HEARTBEAT_FILENAME).touch()
 
 
 if __name__ == '__main__':
