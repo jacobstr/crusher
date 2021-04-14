@@ -157,6 +157,20 @@ CAMPGROUNDS = [
         "tags": ["gnp"],
         "tz": "US/Mountain",
     },
+    {
+        "short_name": "Colter Bay",
+        "name": "COLTER_BAY",
+        "id": "258830",
+        "tags": ["teton"],
+        "tz": "US/Mountain",
+    },
+    {
+        "short_name": "Jenny Lake",
+        "name": "JENNY_LAKE",
+        "id": "247664",
+        "tags": ["teton"],
+        "tz": "US/Mountain",
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
