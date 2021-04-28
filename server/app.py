@@ -101,6 +101,20 @@ CAMPGROUNDS = [
         "tags": ["mt-olympic"],
         "tz": "US/Pacific",
     },
+    {
+        "short_name": "South Campground",
+        "name": "SOUTH_CAMPGROUND",
+        "id": "272266",
+        "tags": ["zion"],
+        "tz": "US/Central",
+    },
+    {
+        "short_name": "Watchman Campground",
+        "name": "WATCHMAN_CAMPGROUND",
+        "id": "232445",
+        "tags": ["zion"],
+        "tz": "US/Central",
+    },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
 #: collection defined above. CAMPGROUNDS is the authoriative source for this
