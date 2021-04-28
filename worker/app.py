@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
+import json
 import logging
 import os
 import random
 import time
-import json
+from pathlib import Path
 
 import arrow
 import requests
 import schedule
+from slackclient import SlackClient
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -20,6 +22,10 @@ CRUSHER_RESULTS_URL = os.getenv('CRUSHER_RESULTS_URL', '{}/watchers/{{id}}/resul
 CRUSHER_CAMPGROUNDS_URL = os.getenv('CRUSHER_CAMPGROUNDS_URL', '{}/meta/campgrounds'.format(CRUSHER_HOST))
 CRUSHER_WATCHER_LISTING_URL = os.getenv('CRUSHER_WATCHER_LISTING_URL', '{}/watchers'.format(CRUSHER_HOST))
 CRUSHER_POLLING_INTERVAL_MINUTES = int(os.getenv('CRUSHER_POLLING_INTERVAL_MINUTES', '3'))
+HEARTBEAT_FILENAME = os.getenv('CRUSHER_HEARTBEAT_FILENAME', '/tmp/worker-health')
+#: The API token for the slack bot can be obtained via:
+#: https://api.slack.com/apps/AD3G033C4/oauth?
+SLACK_API_KEY = os.getenv('SLACK_API_KEY')
 
 
 def campgrounds():
@@ -68,7 +74,7 @@ def availability_fraction(site, start_date, end_date):
     interested_dates = []
     total_days = (end_date - start_date).days
     total_matched = 0.0
-    for avdate, status in list(site['availabilities'].iteritems()):
+    for avdate, status in list(site['availabilities'].items()):
         avparsed = arrow.get(avdate)
         # Ignore dates outside of our interested range.
         if not (avparsed >= start_date and avparsed < end_date):
@@ -78,7 +84,7 @@ def availability_fraction(site, start_date, end_date):
     return total_matched / total_days
 
 
-def run(watcher_id, date, length, campground):
+def run(watcher, date, length, campground):
     start_date = arrow.get(date, 'DD/MM/YY')
     end_date = start_date.shift(days=length)
 
@@ -99,12 +105,21 @@ def run(watcher_id, date, length, campground):
         'https://www.recreation.gov/api/camps/availability/campground/{id}/month'.format(id=campground['id']),
         headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'},
         params={
-            'start_date': start_date.format('YYYY-MM-01T00:00:00') + 'Z',
+            'start_date': start_date.format('YYYY-MM-01T00:00:00.000') + 'Z',
         }
     )
 
     if resp.status_code != 200:
-        LOGGER.error("request failed: %s, %s", resp.headers, resp.content)
+        LOGGER.error("request failed: %s, %s", watcher.get('user_id'), resp.headers, resp.content)
+        try:
+            slack = SlackClient(SLACK_API_KEY)
+            resp = slack.api_call(
+                "chat.postMessage",
+                channel="#campsites",
+                text="Campsite search failed for %s: <STATUS %s>: %s" % (watcher.get('user_id'), resp.text,resp.status_code),
+            )
+        except:
+            LOGGER.exception('failed to notify slack of error')
         return []
 
     LOGGER.debug("response from recreation.gov: %s", json.dumps(resp.json()))
@@ -119,7 +134,7 @@ def run(watcher_id, date, length, campground):
             'https://www.recreation.gov/api/camps/availability/campground/{id}/month'.format(id=campground['id']),
             headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'},
             params={
-                'start_date': end_date.format('YYYY-MM-01T00:00:00') + 'Z',
+                'start_date': end_date.format('YYYY-MM-01T00:00:00.000') + 'Z',
             }
         )
 
@@ -136,7 +151,7 @@ def run(watcher_id, date, length, campground):
         """
         availabilities_by_site = {}
         for payload in responses:
-            for site_id, site in payload['campsites'].iteritems():
+            for site_id, site in payload['campsites'].items():
                 if not availabilities_by_site.get(site_id):
                     availabilities_by_site[site_id] = {
                         'site': site,
@@ -146,7 +161,7 @@ def run(watcher_id, date, length, campground):
         return availabilities_by_site
 
     results = []
-    for site_id, site in _collect_sites(responses).iteritems():
+    for site_id, site in _collect_sites(responses).items():
         avfraction = availability_fraction(site, start_date, end_date)
         if avfraction > 0:
             results.append({
@@ -186,12 +201,14 @@ def run_all():
         results = []
         for cg in campgrounds:
             results.extend(run(
-                watcher_id,
+                watcher,
                 date,
                 length_of_stay,
                 cg,
             ))
         send_watcher_results(watcher_id, results)
+    LOGGER.info("writing heartbeat to %s", HEARTBEAT_FILENAME)
+    Path(HEARTBEAT_FILENAME).touch()
 
 
 if __name__ == '__main__':

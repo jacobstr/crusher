@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crusher-worker
+  namespace: crusher
+  labels:
+    app: crusher
+    component: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crusher
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: crusher
+        component: worker
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - image: koobz/crusher-worker
+          name: crusher-worker
+          imagePullPolicy: Always
+          env:
+            - name: CRUSHER_HEARTBEAT_FILENAME
+              value: /tmp/worker-health
+            - name: CRUSHER_HOST
+              value: http://crusher-server
+            - name: SLACK_SIGNING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: crusher
+                  key: SLACK_SIGNING_SECRET
+            - name: SLACK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: crusher
+                  key: SLACK_API_KEY
+          livenessProbe:
+            exec:
+              # Look for a /tmp/worker-health that has been modified
+              # within the past hour. If it hasn't the pod should be
+              # restarted as we touch the file every heartbeat check.
+              command:
+                - /bin/sh
+                - -c
+                - find /tmp/worker-health -mmin -60 | grep .
+            initialDelaySeconds: 600
+            periodSeconds: 600

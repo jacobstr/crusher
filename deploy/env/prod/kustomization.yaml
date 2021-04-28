@@ -1,5 +1,8 @@
 resources:
-- deploy-server.yaml
-- deploy-worker.yaml
+- certificates.yaml
+- disk.yaml
+bases:
+- ../../base
+- ../../prereqs
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization

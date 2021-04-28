@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crusher-server
+  namespace: crusher
+  labels:
+    app: crusher
+    component: server
+spec:
+  selector:
+    matchLabels:
+      app: crusher
+      component: server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: crusher
+        component: server
+    spec:
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name: crusher-database
+          persistentVolumeClaim:
+            claimName: crusher-database
+      containers:
+        - image: koobz/crusher-server
+          imagePullPolicy: Always
+          name: crusher-server
+          env:
+          - name: CRUSHER_REPO_PATH
+            value: /data/crusher.db
+          - name: SLACK_SIGNING_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: crusher
+                key: SLACK_SIGNING_SECRET
+          - name: SLACK_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: crusher
+                key: SLACK_API_KEY
+          volumeMounts:
+          - mountPath: "/data"
+            name: crusher-database

@@ -102,18 +102,74 @@ CAMPGROUNDS = [
         "tz": "US/Pacific",
     },
     {
-        "short_name": "South Campground",
-        "name": "SOUTH_CAMPGROUND",
-        "id": "272266",
-        "tags": ["zion"],
-        "tz": "US/Central",
+        "short_name": "Point Reyes National Seashore",
+        "name": "POINT_REYES",
+        "id": "233359",
+        "tags": ["point-reyes"],
+        "tz": "US/Pacific",
     },
     {
-        "short_name": "Watchman Campground",
-        "name": "WATCHMAN_CAMPGROUND",
-        "id": "232445",
-        "tags": ["zion"],
-        "tz": "US/Central",
+        "short_name": "Cottonwood",
+        "name": "COTTONWOOD",
+        "id": "272299",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "Jumbo Rocks",
+        "name": "JUMBO_ROCKS",
+        "id": "272300",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "Indian Cove",
+        "name": "INDIAN_COVE",
+        "id": "232472",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "Black Rock",
+        "name": "BLACK_ROCK",
+        "id": "232473",
+        "tags": ["jtree"],
+        "tz": "US/Pacific",
+    },
+    {
+        "short_name": "St. Mary",
+        "name": "ST_MARY",
+        "id": "232492",
+        "tags": ["gnp"],
+        "tz": "US/Mountain",
+    },
+    {
+        "short_name": "Fish Creek",
+        "name": "FISH_CREEK",
+        "id": "232493",
+        "tags": ["gnp"],
+        "tz": "US/Mountain",
+    },
+    {
+        "short_name": "Many Glacier",
+        "name": "MANY_GLACIER",
+        "id": "251869",
+        "tags": ["gnp"],
+        "tz": "US/Mountain",
+    },
+    {
+        "short_name": "Colter Bay",
+        "name": "COLTER_BAY",
+        "id": "258830",
+        "tags": ["teton"],
+        "tz": "US/Mountain",
+    },
+    {
+        "short_name": "Jenny Lake",
+        "name": "JENNY_LAKE",
+        "id": "247664",
+        "tags": ["teton"],
+        "tz": "US/Mountain",
     },
 ]
 #: Known campground tags formed via a superset of all tags in the CAMPGROUNDS
@@ -165,12 +221,12 @@ class WatchersRepo(object):
         return watchers
 
     def remove(self, watcher_id):
-        watchers = filter(lambda x: x['id'] != watcher_id, self.list())
+        watchers = [x for x in self.list() if x['id'] != watcher_id]
         self._set(watchers)
         return watchers
 
     def get(self, watcher_id):
-        watchers = filter(lambda x: x['id'] == watcher_id, self.list())
+        watchers = [x for x in self.list() if x['id'] == watcher_id]
         if len(watchers) > 0:
             return watchers[0]
         else:
@@ -286,8 +342,11 @@ def watchers_results(watcher_id):
     return flask.jsonify(watcher)
 
 
-def slack_list_watchers():
+def slack_list_watchers(user_id=None):
     watchers = WATCHERS.list()
+    if user_id:
+        watchers = [watcher for watcher in WATCHERS.list() if  watcher['user_id'] == user_id]
+
     if len(watchers):
         return flask.jsonify({
             "response_type": "in_channel",
@@ -390,7 +449,11 @@ def slack_slash_commands():
 
     /crush list
     ----------------------
-    Lists active watchers for all reservations.
+    Lists active watchers for the current user.
+
+    /crush list-all
+    ----------------------
+    Lists active watchers for all users.
 
     /crush campgrounds [tags...]
     ------------------
@@ -408,9 +471,9 @@ def slack_slash_commands():
     if not verify_slack_request(
         flask.request.headers['X-Slack-Signature'],
         flask.request.headers['X-Slack-Request-Timestamp'],
-        raw_data,
+        raw_data.decode('utf-8'),
     ):
-        return flask.Response(status_code=400)
+        return flask.Response(status=400)
 
     text = flask.request.form['text']
     if len(text) == 0:
@@ -450,6 +513,8 @@ def slack_slash_commands():
         user_id = flask.request.form['user_id']
         return add_watcher(user_id, campground, start, int(length))
     elif command == 'list':
+        return slack_list_watchers(flask.request.form['user_id'])
+    elif command == 'list-all':
         return slack_list_watchers()
     elif command == 'campgrounds':
         return slack_list_campgrounds(args)
@@ -549,7 +614,8 @@ def make_results_attachments(results):
         "fallback": "Campsite result.",
         "color": "#36a64f",
         "mrkdwn_in": ["text"],
-        "title": "Found a site on {} at {} site {} for {:.0%} of requested stay.".format(
+        "title": "Found a {} on {} at {} site {} for {:.0%} of requested stay.".format(
+            ':unicorn_face:' if result['fraction'] == 1 else 'site',
             result['date'],
             result['campground']['short_name'],
             result['campsite']['site'],
@@ -562,20 +628,20 @@ def make_results_attachments(results):
 # Thanks Jani Karhunen: https://janikarhunen.fi/verify-slack-requests-in-aws-lambda-and-python.html
 def verify_slack_request(slack_signature=None, slack_request_timestamp=None, request_body=None):
     ''' Form the basestring as stated in the Slack API docs. We need to make a bytestring. '''
-    basestring = "v0:{slack_request_timestamp}:{request_body}".format(
-        slack_request_timestamp=slack_request_timestamp,
-        request_body=request_body,
-    )
+    basestring = f"v0:{slack_request_timestamp}:{request_body}".encode('utf-8')
+
+    ''' Make the Signing Secret a bytestring too. '''
+    slack_signing_secret = bytes(SLACK_SIGNING_SECRET, 'utf-8')
 
     ''' Create a new HMAC "signature", and return the string presentation. '''
-    my_signature = 'v0=' + hmac.new(SLACK_SIGNING_SECRET, basestring, hashlib.sha256).hexdigest()
+    my_signature = 'v0=' + hmac.new(slack_signing_secret, basestring, hashlib.sha256).hexdigest()
 
     ''' Compare the the Slack provided signature to ours.
     If they are equal, the request should be verified successfully.
     Log the unsuccessful requests for further analysis
     (along with another relevant info about the request). '''
-    if hmac.compare_digest(str(my_signature), str(slack_signature)):
+    if hmac.compare_digest(my_signature, slack_signature):
         return True
     else:
-        LOGGER.warning("Verification failed. my_signature: {my_signature}")
+        LOGGER.warning(f"Verification failed. my_signature: {my_signature} basestring: {basestring}")
         return False
