@@ -1,4 +1,4 @@
-aiohttp==3.6.3
+aiohttp==3.7.4
 arrow==0.12.1
 async-timeout==3.0.1
 attrs==20.2.0
