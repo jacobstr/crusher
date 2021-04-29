@@ -87,3 +87,6 @@ venv/
 
 # Rope project settings
 .ropeproject
+
+# IntelliJ Junk
+.idea
