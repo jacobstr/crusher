@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0fabafd652542eee316089fd8fea485773c21886507ab853acfee761d3e8efa4"
+            "sha256": "224ffe83632c56816e2139dde9ed27563addc8a7c5208c3de72bb4bce452c1b5"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,10 +18,11 @@
     "default": {
         "arrow": {
             "hashes": [
-                "sha256:a558d3b7b6ce7ffc74206a86c147052de23d3d4ef0e17c210dd478c53575c4cd"
+                "sha256:7954440e7621629a3e4c30dfd2038362d153e1e2b50424c7a6f10e1cdf211a7b",
+                "sha256:c65ea9214403c77b09bd676cba3dcf1e0a396f5dfb316b811bb7f7e10d99e955"
             ],
             "index": "pypi",
-            "version": "==0.12.1"
+            "version": "==0.15.1"
         },
         "backports.functools-lru-cache": {
             "hashes": [
