@@ -27,6 +27,8 @@ spec:
           env:
             - name: CRUSHER_HEARTBEAT_FILENAME
               value: /tmp/worker-health
+            - name: CRUSHER_POLLING_INTERVAL_MINUTES
+              value: 2
             - name: CRUSHER_HOST
               value: http://crusher-server
             - name: SLACK_SIGNING_SECRET
