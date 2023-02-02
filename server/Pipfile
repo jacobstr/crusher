@@ -22,7 +22,7 @@ urllib3 = "==1.24.2"
 Flask = "==1.0.2"
 Jinja2 = "==2.11.3"
 websocket_client = "==0.53.0"
-Werkzeug = "==0.15.3"
+Werkzeug = "==0.15.5"
 markupsafe = "*"
 humanhash3 = "*"
 
